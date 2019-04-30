@@ -20,7 +20,6 @@
 		$value = "";
 		
 		while (ftell($handle) >= 0){
-
 			if ((($c == $entry_separator) and (ftell($handle) < $initial_size - 1)) or (ftell($handle) == 0)){
 				$key = read_up_to($handle, $key_value_separator);
 				$value = read_up_to($handle, $entry_separator);
@@ -46,24 +45,27 @@
 		$handle = fopen($filename, 'r') or die('Cannot open file: ' . $filename);
 		$i = -1;
 
-		while ($observed_part_size > 2){
-			$i++;
-			$observed_part_size = ceil($initial_size / pow(2, $i + 2));
-			fseek($handle, $observed_part_offset);
-			$nearest_entry = get_nearest_key($handle, $key_value_separator, $entry_separator, $initial_size);
-			$comp_result = is_first_less($key, $nearest_entry['key']);
-			
-			if ($comp_result == 0) {
-				return $nearest_entry['value'];
-			} else {
-				$observed_part_offset += (($comp_result < 0) ? -1 : 1) * $observed_part_size;
+		try{
+			while ($observed_part_size > 2){
+				$i++;
+				$observed_part_size = ceil($initial_size / pow(2, $i + 2));
+				fseek($handle, $observed_part_offset);
+				$nearest_entry = get_nearest_key($handle, $key_value_separator, $entry_separator, $initial_size);
+				$comp_result = is_first_less($key, $nearest_entry['key']);
+				
+				if ($comp_result == 0) {
+					return $nearest_entry['value'];
+				} else {
+					$observed_part_offset += (($comp_result < 0) ? -1 : 1) * $observed_part_size;
 
-				if ($observed_part_offset < 0){
-					$observed_part_offset = 0;
+					if ($observed_part_offset < 0){
+						$observed_part_offset = 0;
+					}
 				}
 			}
+			return null;
+		} finally {
+			fclose($handle);
 		}
-		return null;
-		fclose($handle);
 	}
 ?>
