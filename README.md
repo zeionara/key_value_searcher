@@ -13,6 +13,7 @@ Result
 }
 ```
 ## Run test
+Query example
 ```
 curl http://localhost/kvs/test/ -d 'echo_execution_time=true&number_of_keys_to_generate=10000&number_of_keys_to_test=5,filename=../documents/test.txt'
 ```
